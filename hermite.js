@@ -1,5 +1,5 @@
 //name: Hermite resize
-//about: Image resize/resample using Hermite filter with JavaScript. Works fast.
+//about: Fast image resize/resample using Hermite filter with JavaScript.
 //author: ViliusL
 //demo: http://viliusle.github.io/miniPaint/
 function resample_hermite(canvas, W, H, W2, H2){

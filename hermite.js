@@ -1,8 +1,5 @@
-Hermite-resize
-==============
-
-Image resize/resample using Hermite filter with JavaScript. Works fast.
-
+//Hermite-resize
+//Image resize/resample using Hermite filter with JavaScript. Works fast.
 function resample_hermite(canvas, W, H, W2, H2){
 	var time1 = Date.now();
 	var img = canvas.getContext("2d").getImageData(0, 0, W, H);

@@ -43,7 +43,7 @@ onmessage = function (event){
 						}
 					}
 				}
-			var x2 = (i + j*W2) * 4 - offset;		//var x2 = (Math.ceil(i*W2/W) + Math.ceil(j*H2/H)*W2) * 4 - offset;
+			var x2 = (i + j*W2) * 4 - offset;
 			data2[x2]     = gx_r / weights;
 			data2[x2 + 1] = gx_g / weights;
 			data2[x2 + 2] = gx_b / weights;

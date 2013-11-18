@@ -15,7 +15,7 @@ function resample_hermite(canvas, W, H, W2, H2){
 			var offset = event.data.offset;
 			
 			for(var i = 0; i < event.data.data.length; i += 4){
-				var x = offset + i;         ]); return false;
+				var x = offset + i;
 				data2[x]     = event.data.data[i];	
 				data2[x + 1] = event.data.data[i+1];
 				data2[x + 2] = event.data.data[i+2];

@@ -11,4 +11,4 @@ demo: http://viliusle.github.io/miniPaint/
 <b>worker-handler.js</b> - function that split image, send each peace to resize and combine results<br />
 <b>worker-hermite.js</b> - worker, must be in same domain
 
-* - beta, slower than single core, becouse sharing resources, combining takes additional time, to be usefull must be slow process. Or not optimized? :) 
+* slower than single core, becouse sharing resources, combining takes additional time. And there is no way to get CPU count WITH js.

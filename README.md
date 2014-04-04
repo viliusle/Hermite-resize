@@ -8,7 +8,7 @@ demo: http://viliusle.github.io/miniPaint/
 <b>hermite.js</b> - main function, fastest way.
 
 ### Multi-core*:
-<b>worker-handler.js</b> - function that split image, send each peace to resize and combine results<br />
+<b>worker-handler.js</b> - function that splits image, sends each peace to resize and combines results<br />
 <b>worker-hermite.js</b> - worker, must be in same domain
 
-* slower than single core, becouse sharing resources, combining takes additional time. And there is no way to get CPU count WITH js.
+* slower than single core, because sharing resources, combining takes additional time. And there are no ways to get CPU count with JS.

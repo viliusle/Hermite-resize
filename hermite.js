@@ -55,5 +55,7 @@ function resample_hermite(canvas, W, H, W2, H2){
 		}
 	console.log("hermite = "+(Math.round(Date.now() - time1)/1000)+" s");
 	canvas.getContext("2d").clearRect(0, 0, Math.max(W, W2), Math.max(H, H2));
+	canvas.width = W2;
+	canvas.height = H2;
 	canvas.getContext("2d").putImageData(img2, 0, 0);
 	}

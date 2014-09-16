@@ -4,6 +4,8 @@
 //demo: http://viliusle.github.io/miniPaint/
 function resample_hermite(canvas, W, H, W2, H2){
 	var time1 = Date.now();
+	W2 = Math.round(W2);
+	H2 = Math.round(H2);
 	var img = canvas.getContext("2d").getImageData(0, 0, W, H);
 	var img2 = canvas.getContext("2d").getImageData(0, 0, W2, H2);
 	var data = img.data;

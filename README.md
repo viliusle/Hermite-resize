@@ -21,10 +21,9 @@ HERMITE.resample_single(canvas, width, height);
 </script>
 ```
 
-- demo file included: test/demo.html (canvas + image resize)
-- **Online demo coming soon.**
+- demo file included: ```test/demo.html``` 
+- single core demo - http://jsfiddle.net/9g9Nv/442/
 
-### Version 1.0 - (deprecated)
+### Version 1.0
 Single core version - stable. Multi core version - experimental.
 - demo: http://viliusle.github.io/miniPaint/
-- fiddle: http://jsfiddle.net/9g9Nv/96/

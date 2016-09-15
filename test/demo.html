@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Hermite resize Demo</title>
+<style>
+canvas{
+	border:1px solid #cccccc;
+	/* disable antialiasing */
+	image-rendering: optimizeSpeed;             /* Older versions of FF          */
+	image-rendering: -moz-crisp-edges;          /* FF 6.0+                       */
+	image-rendering: -webkit-optimize-contrast; /* Safari                        */
+	image-rendering: -o-crisp-edges;            /* OS X & Windows Opera (12.02+) */
+	image-rendering: pixelated;                 /* Awesome future-browsers       */
+	-ms-interpolation-mode: nearest-neighbor;   /* IE                            */
+}
+</style>
+<script>
+//image path
+var path = 'nature.jpg';
+</script>
+<script src="../dist/hermite.js"></script>
+<script src="../dist/hermite.worker.js"></script>
+</head>
+<body>
+<h2 style="margin: 5px 0px;">Hermite resize Demo</h2>
+
+<a id="source" href="#">Image</a>
+<script>
+document.getElementById("source").href = path;
+</script>
+
+<button onclick="resize(350);">350%</button>
+<button onclick="resize(100);">100%</button>
+<button onclick="resize(77);">77%</button>
+<button onclick="resize(40);">40%</button>
+<button onclick="resize(20);">20%</button>
+
+<input id="slider" value="100" min="1" max="100" step="1" oninput="resize(this.value, true);" type="range">
+<span style="margin-right:10px;" id="slider_value">-</span>
+
+<label><input type="checkbox" id="workers" value="1"> Use <span id="cores"></span> workers</label>
+
+<span style="margin-left:30px;">
+	Resized in: <span id="timer" style="font-weight:bold;">-</span> s
+</span>
+
+<br /><br />
+<b>Canvas:</b><br />
+<canvas id="cc"></canvas>
+
+<hr />
+<button onclick="resize_image('image', 77);">Resize image</button>
+<br />
+<b>Image:</b><br />
+<img id="image" alt="" src="" />
+<script>
+document.getElementById("image").src = path;
+</script>
+
+<script>
+//globals
+var HERMITE = new Hermite_class();
+var canvas = document.getElementById("cc");
+var ctx = canvas.getContext("2d");
+var img_w;
+var img_h;
+var current_size = false;
+
+var img = new Image();
+img.crossOrigin = "Anonymous"; //cors support
+img.onload = function(){
+	draw_image();
+	
+	var resize_size = 63; //1-100
+	
+	//resize
+	resize(resize_size);
+	setSlider(resize_size);
+};
+img.src = path;
+
+function draw_image(){
+	img_w = img.width;
+	img_h = img.height;
+
+	//prepare canvas
+	canvas.width = img_w;
+	canvas.height = img_h;
+	ctx.clearRect(0, 0, img_w, img_h);
+	
+	//draw image
+	ctx.drawImage(img, 0, 0);
+}
+function setSlider(value){
+	document.getElementById('slider').value = value;
+}
+function resize(percentages, slider) {
+	if(slider === true && current_size == percentages){
+		//stop event from firing twice - firefix bug
+		return false;
+	}
+	current_size = percentages;
+	document.getElementById('slider_value').innerHTML = percentages+'%';
+	
+	var use_workers = document.getElementById('workers').checked;
+	var cores = HERMITE.getCores();
+	document.getElementById('cores').innerHTML = cores;
+	
+	var w =  Math.round(img_w * percentages / 100);
+	var h =  Math.round(img_h * percentages / 100);
+
+	//prepare canvas
+	canvas.width = img_w;
+	canvas.height = img_h;
+	ctx.drawImage(img, 0, 0); //draw image
+
+	//start timer
+	var time1 = Date.now();	
+	
+	var on_finish = function(){
+		document.getElementById('timer').innerHTML = Math.round(Date.now() - time1)/1000;
+	};
+	
+	//resize
+	if(use_workers){
+		//multi-cpu version
+		HERMITE.resample(canvas, w, h, true, on_finish);
+	}		
+	else{
+		//1 cpu version
+		HERMITE.resample_single(canvas, w, h, true);
+		on_finish();
+	}
+}
+function resize_image(image_id, percentages){
+	var time1 = Date.now();	
+	
+	var temp_canvas = document.createElement("canvas");
+	temp_canvas.width = img_w;
+	temp_canvas.height = img_h;
+	var temp_ctx = temp_canvas.getContext("2d");
+	
+	//draw image
+	var img = document.getElementById(image_id);
+	temp_ctx.drawImage(img, 0, 0);
+	
+	var use_workers = document.getElementById('workers').checked;
+	
+	var on_finish = function(){
+		var dataURL = temp_canvas.toDataURL();
+		document.getElementById(image_id).src = dataURL;
+
+		document.getElementById('timer').innerHTML = Math.round(Date.now() - time1)/1000;
+		
+		delete dataURL;
+		delete temp_canvas;
+	};
+	
+	var w =  Math.round(img_w * percentages / 100);
+	var h =  Math.round(img_h * percentages / 100);
+	
+	//resize
+	if(use_workers){
+		//multi-cpu version
+		HERMITE.resample(temp_canvas, w, h, true, on_finish);
+	}		
+	else{
+		//1 cpu version
+		HERMITE.resample_single(temp_canvas, w, h, true);
+		on_finish();
+	}
+	
+}
+</script>
+</body>
+</html>

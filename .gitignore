@@ -1,0 +1,10 @@
+# OS generated files #
+.DS_Store
+.DS_Store?
+._*
+.Trashes
+Icon?
+Thumbs.db
+nbproject/
+.git/
+/.project

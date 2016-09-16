@@ -1,9 +1,0 @@
-{
-	"name": "viliusle/Hermite-resize",
-	"description": "Canvas Image resizing library",
-	"version": "2.0.0",
-	"author": "ViliusL",
-	"license": "MIT",
-	"repository": "viliusle/Hermite-resize",
-	"type": "library"
-}

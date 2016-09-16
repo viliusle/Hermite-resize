@@ -4,7 +4,7 @@ Supports transparency, gives good quality.
 Library was created for canvas manipulation, but it also can be used for HTML images.
  
 ### Version 2.0
-**Faster** and non-blocking. Switched to **web workers** with **transferable objects**. Single cpu version 20% faster, multi-cpu version - 80% faster.
+**Faster** and don't block the UI. Switched to **web workers** with **transferable objects**. Single core version is 20% faster, multi-core version - 5 times faster then previous multi-core version. For small images, 1-core version still faster, for big images, multi-core version is similar/faster.
 
 Usage:
 ```javascript

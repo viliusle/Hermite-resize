@@ -91,8 +91,8 @@ function Hermite_class() {
 			source[c] = ctx.getImageData(0, offset_y, width_source, block_height);
 
 			//target
-			var offset_y = Math.ceil(height / cores) * c;
-			var block_height = Math.ceil(height / cores);
+			offset_y = Math.ceil(height / cores) * c;
+			block_height = Math.ceil(height / cores);
 			if (offset_y + block_height > height) {
 				block_height = height - offset_y;
 			}

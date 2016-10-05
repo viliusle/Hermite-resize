@@ -20,7 +20,6 @@ canvas{
 var path = 'nature.jpg';
 </script>
 <script src="../dist/hermite.js"></script>
-<script src="../dist/hermite.worker.js"></script>
 </head>
 <body>
 <h2 style="margin: 5px 0px;">Hermite resize Demo</h2>
@@ -50,12 +49,13 @@ document.getElementById("source").href = path;
 <canvas id="cc"></canvas>
 
 <hr />
-<button onclick="resize_image('image', 77);">Resize image</button>
+<button onclick="HERMITE.resize_image('image_id', 300, 100, document.getElementById('workers').checked);">Resize to 300x100</button>
+<button onclick="HERMITE.resize_image('image_id', null, null, 50, document.getElementById('workers').checked);">Resize to 50%</button>
 <br />
 <b>Image:</b><br />
-<img id="image" alt="" src="" />
+<img id="image_id" alt="" src="" />
 <script>
-document.getElementById("image").src = path;
+document.getElementById("image_id").src = path;
 </script>
 
 <script>
@@ -132,45 +132,6 @@ function resize(percentages, slider) {
 		HERMITE.resample_single(canvas, w, h, true);
 		on_finish();
 	}
-}
-function resize_image(image_id, percentages){
-	var time1 = Date.now();	
-	
-	var temp_canvas = document.createElement("canvas");
-	temp_canvas.width = img_w;
-	temp_canvas.height = img_h;
-	var temp_ctx = temp_canvas.getContext("2d");
-	
-	//draw image
-	var img = document.getElementById(image_id);
-	temp_ctx.drawImage(img, 0, 0);
-	
-	var use_workers = document.getElementById('workers').checked;
-	
-	var on_finish = function(){
-		var dataURL = temp_canvas.toDataURL();
-		document.getElementById(image_id).src = dataURL;
-
-		document.getElementById('timer').innerHTML = Math.round(Date.now() - time1)/1000;
-		
-		delete dataURL;
-		delete temp_canvas;
-	};
-	
-	var w =  Math.round(img_w * percentages / 100);
-	var h =  Math.round(img_h * percentages / 100);
-	
-	//resize
-	if(use_workers){
-		//multi-cpu version
-		HERMITE.resample(temp_canvas, w, h, true, on_finish);
-	}		
-	else{
-		//1 cpu version
-		HERMITE.resample_single(temp_canvas, w, h, true);
-		on_finish();
-	}
-	
 }
 </script>
 </body>

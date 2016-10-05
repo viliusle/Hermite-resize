@@ -25,7 +25,7 @@ HERMITE.resize_image('image_id', null, null, 50);
 ```
 
 - demo file included: ```test/demo.html``` 
-- single core demo - http://jsfiddle.net/9g9Nv/442/
+- single core demo - http://jsfiddle.net/9g9Nv/460/
 
 ### Version 1.0
 Single core version - stable. Multi core version - experimental.

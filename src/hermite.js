@@ -1,6 +1,6 @@
-
-/**
+/*
  * Hermite resize - fast image resize/resample using Hermite filter.
+ * Version: 2.2
  * Author: ViliusL
  * demo: http://viliusle.github.io/miniPaint/
  */
@@ -114,7 +114,7 @@ function Hermite_class() {
 		var height_source = canvas.height;
 		width = Math.round(width);
 		height = Math.round(height);
-		var ratio_h_half = Math.ceil(height_source / height / 2);
+		var ratio_h = height_source / height;
 
 		//stop old workers
 		if (workers_archive.length > 0) {
@@ -129,32 +129,30 @@ function Hermite_class() {
 		var ctx = canvas.getContext("2d");
 
 		//prepare source and target data for workers
-		var source = new Array(cores);
-		var target = new Array(cores);
+		var data_part = [];
+		var block_height = Math.ceil(height_source / cores / 2) * 2;
+		var end_y = -1;
 		for (var c = 0; c < cores; c++) {
-			//source	
-			var offset_y = Math.ceil(height_source / cores) * c;
-			var block_height = Math.ceil(height_source / cores) + ratio_h_half * cores;
-			if (offset_y + block_height > height_source) {
-				block_height = height_source - offset_y;
-			}
-			if (block_height < 1) {
+			//source
+			var offset_y = end_y + 1;
+			if (offset_y > height_source) {
 				//size too small, nothing left for this core
 				continue;
 			}
-			source[c] = ctx.getImageData(0, offset_y, width_source, block_height);
+			
+			end_y = offset_y + block_height - 1;
+			end_y = Math.min(end_y, height_source - 1);
+			
+			var current_block_height = block_height;
+			current_block_height = Math.min(block_height, height_source - offset_y);
 
-			//target
-			offset_y = Math.ceil(height / cores) * c;
-			block_height = Math.ceil(height / cores);
-			if (offset_y + block_height > height) {
-				block_height = height - offset_y;
-			}
-			if (block_height < 1) {
-				//size too small, nothing left for this core
-				continue;
-			}
-			target[c] = true;
+			//console.log('source split: ', '#'+c, offset_y, end_y, 'height: '+current_block_height);
+
+			data_part[c] = {};			
+			data_part[c].source = ctx.getImageData(0, offset_y, width_source, block_height);
+			data_part[c].target = true;
+			data_part[c].start_y = Math.ceil(offset_y / ratio_h);
+			data_part[c].height = current_block_height;
 		}
 
 		//clear and resize canvas
@@ -168,7 +166,7 @@ function Hermite_class() {
 		//start
 		var workers_in_use = 0;
 		for (var c = 0; c < cores; c++) {
-			if (target[c] == undefined) {
+			if (data_part[c].target == undefined) {
 				//no job for this worker
 				continue;
 			}
@@ -183,25 +181,23 @@ function Hermite_class() {
 				delete workers_archive[core];
 
 				//draw
-				target[core] = ctx.createImageData(width, Math.ceil(height / cores));
-				target[core].data.set(event.data.target);
-				var y = Math.ceil(height / cores) * core;
-				ctx.putImageData(target[core], 0, y);
-
+				var height_part = Math.ceil(data_part[core].height / ratio_h);
+				data_part[core].target = ctx.createImageData(width, height_part);
+				data_part[core].target.data.set(event.data.target);
+				ctx.putImageData(data_part[core].target, 0, data_part[core].start_y);	
+				
 				if (workers_in_use <= 0) {
 					//finish
 					on_finish();
 				}
 			};
-
 			var objData = {
 				width_source: width_source,
-				height_source: height_source,
+				height_source: data_part[c].height,
 				width: width,
-				height: height,
+				height: Math.ceil(data_part[c].height / ratio_h),
 				core: c,
-				cores: cores,
-				source: source[c].data.buffer,
+				source: data_part[c].source.data.buffer,
 			};
 			my_worker.postMessage(objData, [objData.source]);
 		}
@@ -213,30 +209,23 @@ function Hermite_class() {
 			//begin worker
 			onmessage = function (event) {
 				var core = event.data.core;
-				var cores = event.data.cores;
 				var width_source = event.data.width_source;
 				var height_source = event.data.height_source;
 				var width = event.data.width;
 				var height = event.data.height;
-
+				
 				var ratio_w = width_source / width;
 				var ratio_h = height_source / height;
 				var ratio_w_half = Math.ceil(ratio_w / 2);
 				var ratio_h_half = Math.ceil(ratio_h / 2);
-
+				
 				var source = new Uint8ClampedArray(event.data.source);
 				var source_h = source.length / width_source / 4;
-
-				var target_size = width * Math.ceil(height / cores) * 4;
+				var target_size = width * height * 4;
 				var target_memory = new ArrayBuffer(target_size);
 				var target = new Uint8ClampedArray(target_memory, 0, target_size);
-
-				//j position in original source = j + d_h - d_h_source;
-				var d_h_source = Math.ceil(height_source / cores) * core;
-				var d_h = Math.ceil(height / cores) * core;
-
 				//calculate
-				for (var j = 0; j < Math.ceil(height / cores); j++) {
+				for (var j = 0; j < height; j++) {
 					for (var i = 0; i < width; i++) {
 						var x2 = (i + j * width) * 4;
 						var weight = 0;
@@ -246,22 +235,22 @@ function Hermite_class() {
 						var gx_g = 0;
 						var gx_b = 0;
 						var gx_a = 0;
-						var center_y = (d_h + j + 0.5) * ratio_h - d_h_source;
-
-						var yy_start = Math.floor(j * ratio_h);
-						var yy_stop = Math.ceil((d_h + j + 1) * ratio_h - d_h_source);
+						var center_y = j * ratio_h;
+						
 						var xx_start = Math.floor(i * ratio_w);
 						var xx_stop = Math.ceil((i + 1) * ratio_w);
+						var yy_start = Math.floor(j * ratio_h);
+						var yy_stop = Math.ceil((j + 1) * ratio_h);
+						
+						xx_stop = Math.min(xx_stop, width_source);
+						yy_stop = Math.min(yy_stop, height_source);
+						
 						for (var yy = yy_start; yy < yy_stop; yy++) {
-							if (yy >= source_h || yy < 0) {
-								//extra border check
-								continue;
-							}
-							var dy = Math.abs(center_y - (yy + 0.5)) / ratio_h_half;
-							var center_x = (i + 0.5) * ratio_w;
+							var dy = Math.abs(center_y - yy) / ratio_h_half;
+							var center_x = i * ratio_w;
 							var w0 = dy * dy; //pre-calc part of w
 							for (var xx = xx_start; xx < xx_stop; xx++) {
-								var dx = Math.abs(center_x - (xx + 0.5)) / ratio_w_half;
+								var dx = Math.abs(center_x - xx) / ratio_w_half;
 								var w = Math.sqrt(w0 + dx * dx);
 								if (w >= 1) {
 									//pixel too far
@@ -336,17 +325,21 @@ function Hermite_class() {
 				var gx_g = 0;
 				var gx_b = 0;
 				var gx_a = 0;
-				var center_y = (j + 0.5) * ratio_h;
+				var center_y = j * ratio_h;
+				
+				var xx_start = Math.floor(i * ratio_w);
+				var xx_stop = Math.ceil((i + 1) * ratio_w);
 				var yy_start = Math.floor(j * ratio_h);
 				var yy_stop = Math.ceil((j + 1) * ratio_h);
+				xx_stop = Math.min(xx_stop, width_source);
+				yy_stop = Math.min(yy_stop, height_source);
+				
 				for (var yy = yy_start; yy < yy_stop; yy++) {
-					var dy = Math.abs(center_y - (yy + 0.5)) / ratio_h_half;
-					var center_x = (i + 0.5) * ratio_w;
+					var dy = Math.abs(center_y - yy) / ratio_h_half;
+					var center_x = i * ratio_w;
 					var w0 = dy * dy; //pre-calc part of w
-					var xx_start = Math.floor(i * ratio_w);
-					var xx_stop = Math.ceil((i + 1) * ratio_w);
 					for (var xx = xx_start; xx < xx_stop; xx++) {
-						var dx = Math.abs(center_x - (xx + 0.5)) / ratio_w_half;
+						var dx = Math.abs(center_x - xx) / ratio_w_half;
 						var w = Math.sqrt(w0 + dx * dx);
 						if (w >= 1) {
 							//pixel too far

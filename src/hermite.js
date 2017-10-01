@@ -88,8 +88,8 @@ function Hermite_class() {
 			img.height = height;
 			img.src = dataURL;
 
-			delete dataURL;
-			delete temp_canvas;
+			dataURL = null;
+			temp_canvas = null;
 		};
 
 		//resize
@@ -208,7 +208,7 @@ function Hermite_class() {
 	};
 	
 	// Build a worker from an anonymous function body - purpose is to avoid separate file
-	workerBlobURL = URL.createObjectURL( new Blob([ '(',
+	workerBlobURL = window.URL.createObjectURL( new Blob([ '(',
 		function(){
 			//begin worker
 			onmessage = function (event) {

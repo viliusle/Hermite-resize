@@ -2,7 +2,7 @@
 Fast canvas image resize/resample using Hermite filter with JavaScript.
 Supports transparency, gives good quality.
 Library was created for canvas manipulation, but it also can resize HTML images.
- 
+
 Uses web workers with transferable objects. Also single core version is supported.
 
 **Install** with NPM:
@@ -10,7 +10,13 @@ Uses web workers with transferable objects. Also single core version is supporte
 npm install https://github.com/viliusle/Hermite-resize.git
 ```
 
-Usage:
+**Usage** with NPM:
+```
+import Hermite_class from './node_modules/hermite-resize/dist/hermite.npm.js';
+var HERMITE = new Hermite_class();
+```
+
+**Usage**:
 ```javascript
 <script src="../dist/hermite.js"></script>
 <script>

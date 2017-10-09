@@ -137,7 +137,7 @@ function Hermite_class() {
 		for (var c = 0; c < cores; c++) {
 			//source
 			var offset_y = end_y + 1;
-			if (offset_y > height_source) {
+			if (offset_y >= height_source) {
 				//size too small, nothing left for this core
 				continue;
 			}
@@ -168,7 +168,7 @@ function Hermite_class() {
 		//start
 		var workers_in_use = 0;
 		for (var c = 0; c < cores; c++) {
-			if (data_part[c].target == undefined) {
+			if (data_part[c] == undefined) {
 				//no job for this worker
 				continue;
 			}

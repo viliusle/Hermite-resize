@@ -18,7 +18,7 @@ function Hermite_class() {
 
 	/**
 	 * Returns CPU cores count
-	 * 
+	 *
 	 * @returns {int}
 	 */
 	this.getCores = function () {
@@ -27,7 +27,7 @@ function Hermite_class() {
 
 	/**
 	 * Hermite resize. Detect cpu count and use best option for user.
-	 * 
+	 *
 	 * @param {HtmlElement} canvas
 	 * @param {int} width
 	 * @param {int} height
@@ -48,10 +48,10 @@ function Hermite_class() {
 			}
 		}
 	};
-	
+
 	/**
 	 * Hermite resize. Resize actual image.
-	 * 
+	 *
 	 * @param {string} image_id
 	 * @param {int} width
 	 * @param {int} height optional.
@@ -60,7 +60,7 @@ function Hermite_class() {
 	 */
 	this.resize_image = function(image_id, width, height, percentages, multi_core){
 		var img = document.getElementById(image_id);
-		
+
 		//create temp canvas
 		var temp_canvas = document.createElement("canvas");
 		temp_canvas.width = img.width;
@@ -69,13 +69,13 @@ function Hermite_class() {
 
 		//draw image
 		temp_ctx.drawImage(img, 0, 0);
-		
+
 		//prepare size
 		if(width == undefined && height == undefined && percentages != undefined){
 			width = img.width / 100 * percentages;
 			height = img.height / 100 * percentages;
 		}
-		if(height == undefined){	
+		if(height == undefined){
 			var ratio = img.width / width;
 			height = img.height / ratio;
 		}
@@ -101,10 +101,10 @@ function Hermite_class() {
 			on_finish();
 		}
 	};
-	
+
 	/**
 	 * Hermite resize, multicore version - fast image resize/resample using Hermite filter.
-	 * 
+	 *
 	 * @param {HtmlElement} canvas
 	 * @param {int} width
 	 * @param {int} height
@@ -137,20 +137,20 @@ function Hermite_class() {
 		for (var c = 0; c < cores; c++) {
 			//source
 			var offset_y = end_y + 1;
-			if (offset_y > height_source) {
+			if (offset_y >= height_source) {
 				//size too small, nothing left for this core
 				continue;
 			}
-			
+
 			end_y = offset_y + block_height - 1;
 			end_y = Math.min(end_y, height_source - 1);
-			
+
 			var current_block_height = block_height;
 			current_block_height = Math.min(block_height, height_source - offset_y);
 
 			//console.log('source split: ', '#'+c, offset_y, end_y, 'height: '+current_block_height);
 
-			data_part[c] = {};			
+			data_part[c] = {};
 			data_part[c].source = ctx.getImageData(0, offset_y, width_source, block_height);
 			data_part[c].target = true;
 			data_part[c].start_y = Math.ceil(offset_y / ratio_h);
@@ -168,7 +168,7 @@ function Hermite_class() {
 		//start
 		var workers_in_use = 0;
 		for (var c = 0; c < cores; c++) {
-			if (data_part[c].target == undefined) {
+			if (data_part[c] == undefined) {
 				//no job for this worker
 				continue;
 			}
@@ -180,14 +180,15 @@ function Hermite_class() {
 			my_worker.onmessage = function (event) {
 				workers_in_use--;
 				var core = event.data.core;
+				workers_archive[core].terminate();
 				delete workers_archive[core];
 
 				//draw
 				var height_part = Math.ceil(data_part[core].height / ratio_h);
 				data_part[core].target = ctx.createImageData(width, height_part);
 				data_part[core].target.data.set(event.data.target);
-				ctx.putImageData(data_part[core].target, 0, data_part[core].start_y);	
-				
+				ctx.putImageData(data_part[core].target, 0, data_part[core].start_y);
+
 				if (workers_in_use <= 0) {
 					//finish
 					if(on_finish != undefined) {
@@ -206,7 +207,7 @@ function Hermite_class() {
 			my_worker.postMessage(objData, [objData.source]);
 		}
 	};
-	
+
 	// Build a worker from an anonymous function body - purpose is to avoid separate file
 	workerBlobURL = window.URL.createObjectURL( new Blob([ '(',
 		function(){
@@ -217,12 +218,12 @@ function Hermite_class() {
 				var height_source = event.data.height_source;
 				var width = event.data.width;
 				var height = event.data.height;
-				
+
 				var ratio_w = width_source / width;
 				var ratio_h = height_source / height;
 				var ratio_w_half = Math.ceil(ratio_w / 2);
 				var ratio_h_half = Math.ceil(ratio_h / 2);
-				
+
 				var source = new Uint8ClampedArray(event.data.source);
 				var source_h = source.length / width_source / 4;
 				var target_size = width * height * 4;
@@ -240,15 +241,15 @@ function Hermite_class() {
 						var gx_b = 0;
 						var gx_a = 0;
 						var center_y = j * ratio_h;
-						
+
 						var xx_start = Math.floor(i * ratio_w);
 						var xx_stop = Math.ceil((i + 1) * ratio_w);
 						var yy_start = Math.floor(j * ratio_h);
 						var yy_stop = Math.ceil((j + 1) * ratio_h);
-						
+
 						xx_stop = Math.min(xx_stop, width_source);
 						yy_stop = Math.min(yy_stop, height_source);
-						
+
 						for (var yy = yy_start; yy < yy_stop; yy++) {
 							var dy = Math.abs(center_y - yy) / ratio_h_half;
 							var center_x = i * ratio_w;
@@ -296,7 +297,7 @@ function Hermite_class() {
 
 	/**
 	 * Hermite resize - fast image resize/resample using Hermite filter. 1 cpu version!
-	 * 
+	 *
 	 * @param {HtmlElement} canvas
 	 * @param {int} width
 	 * @param {int} height
@@ -330,14 +331,14 @@ function Hermite_class() {
 				var gx_b = 0;
 				var gx_a = 0;
 				var center_y = j * ratio_h;
-				
+
 				var xx_start = Math.floor(i * ratio_w);
 				var xx_stop = Math.ceil((i + 1) * ratio_w);
 				var yy_start = Math.floor(j * ratio_h);
 				var yy_stop = Math.ceil((j + 1) * ratio_h);
 				xx_stop = Math.min(xx_stop, width_source);
 				yy_stop = Math.min(yy_stop, height_source);
-				
+
 				for (var yy = yy_start; yy < yy_stop; yy++) {
 					var dy = Math.abs(center_y - yy) / ratio_h_half;
 					var center_x = i * ratio_w;

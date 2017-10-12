@@ -40,15 +40,16 @@ function Hermite_class() {
 		if (!!window.Worker && cores > 1) {
 			//workers supported and we have at least 2 cpu cores - using multithreading
 			this.resample(canvas, width, height, resize_canvas, on_finish);
-		} else {
+		}
+		else {
 			//1 cpu version
 			this.resample_single(canvas, width, height, true);
-			if(on_finish != undefined) {
+			if (on_finish != undefined) {
 				on_finish();
 			}
 		}
 	};
-	
+
 	/**
 	 * Hermite resize. Resize actual image.
 	 * 
@@ -58,9 +59,9 @@ function Hermite_class() {
 	 * @param {int} percentages optional.
 	 * @param {string} multi_core optional.
 	 */
-	this.resize_image = function(image_id, width, height, percentages, multi_core){
+	this.resize_image = function (image_id, width, height, percentages, multi_core) {
 		var img = document.getElementById(image_id);
-		
+
 		//create temp canvas
 		var temp_canvas = document.createElement("canvas");
 		temp_canvas.width = img.width;
@@ -69,20 +70,20 @@ function Hermite_class() {
 
 		//draw image
 		temp_ctx.drawImage(img, 0, 0);
-		
+
 		//prepare size
-		if(width == undefined && height == undefined && percentages != undefined){
+		if (width == undefined && height == undefined && percentages != undefined) {
 			width = img.width / 100 * percentages;
 			height = img.height / 100 * percentages;
 		}
-		if(height == undefined){	
+		if (height == undefined) {
 			var ratio = img.width / width;
 			height = img.height / ratio;
 		}
 		width = Math.round(width);
 		height = Math.round(height);
 
-		var on_finish = function(){
+		var on_finish = function () {
 			var dataURL = temp_canvas.toDataURL();
 			img.width = width;
 			img.height = height;
@@ -93,15 +94,15 @@ function Hermite_class() {
 		};
 
 		//resize
-		if(multi_core == undefined || multi_core == true){
+		if (multi_core == undefined || multi_core == true) {
 			this.resample(temp_canvas, width, height, true, on_finish);
 		}
-		else{
+		else {
 			this.resample_single(temp_canvas, width, height, true);
 			on_finish();
 		}
 	};
-	
+
 	/**
 	 * Hermite resize, multicore version - fast image resize/resample using Hermite filter.
 	 * 
@@ -141,16 +142,16 @@ function Hermite_class() {
 				//size too small, nothing left for this core
 				continue;
 			}
-			
+
 			end_y = offset_y + block_height - 1;
 			end_y = Math.min(end_y, height_source - 1);
-			
+
 			var current_block_height = block_height;
 			current_block_height = Math.min(block_height, height_source - offset_y);
 
 			//console.log('source split: ', '#'+c, offset_y, end_y, 'height: '+current_block_height);
 
-			data_part[c] = {};			
+			data_part[c] = {};
 			data_part[c].source = ctx.getImageData(0, offset_y, width_source, block_height);
 			data_part[c].target = true;
 			data_part[c].start_y = Math.ceil(offset_y / ratio_h);
@@ -161,7 +162,8 @@ function Hermite_class() {
 		if (resize_canvas === true) {
 			canvas.width = width;
 			canvas.height = height;
-		} else {
+		}
+		else {
 			ctx.clearRect(0, 0, width_source, height_source);
 		}
 
@@ -186,11 +188,11 @@ function Hermite_class() {
 				var height_part = Math.ceil(data_part[core].height / ratio_h);
 				data_part[core].target = ctx.createImageData(width, height_part);
 				data_part[core].target.data.set(event.data.target);
-				ctx.putImageData(data_part[core].target, 0, data_part[core].start_y);	
-				
+				ctx.putImageData(data_part[core].target, 0, data_part[core].start_y);
+
 				if (workers_in_use <= 0) {
 					//finish
-					if(on_finish != undefined) {
+					if (on_finish != undefined) {
 						on_finish();
 					}
 				}
@@ -206,10 +208,10 @@ function Hermite_class() {
 			my_worker.postMessage(objData, [objData.source]);
 		}
 	};
-	
+
 	// Build a worker from an anonymous function body - purpose is to avoid separate file
-	workerBlobURL = window.URL.createObjectURL( new Blob([ '(',
-		function(){
+	workerBlobURL = window.URL.createObjectURL(new Blob(['(',
+		function () {
 			//begin worker
 			onmessage = function (event) {
 				var core = event.data.core;
@@ -217,12 +219,12 @@ function Hermite_class() {
 				var height_source = event.data.height_source;
 				var width = event.data.width;
 				var height = event.data.height;
-				
+
 				var ratio_w = width_source / width;
 				var ratio_h = height_source / height;
 				var ratio_w_half = Math.ceil(ratio_w / 2);
 				var ratio_h_half = Math.ceil(ratio_h / 2);
-				
+
 				var source = new Uint8ClampedArray(event.data.source);
 				var source_h = source.length / width_source / 4;
 				var target_size = width * height * 4;
@@ -240,15 +242,15 @@ function Hermite_class() {
 						var gx_b = 0;
 						var gx_a = 0;
 						var center_y = j * ratio_h;
-						
+
 						var xx_start = Math.floor(i * ratio_w);
 						var xx_stop = Math.ceil((i + 1) * ratio_w);
 						var yy_start = Math.floor(j * ratio_h);
 						var yy_stop = Math.ceil((j + 1) * ratio_h);
-						
+
 						xx_stop = Math.min(xx_stop, width_source);
 						yy_stop = Math.min(yy_stop, height_source);
-						
+
 						for (var yy = yy_start; yy < yy_stop; yy++) {
 							var dy = Math.abs(center_y - yy) / ratio_h_half;
 							var center_x = i * ratio_w;
@@ -292,7 +294,7 @@ function Hermite_class() {
 			};
 			//end worker
 		}.toString(),
-	')()' ], { type: 'application/javascript' } ) );
+		')()'], {type: 'application/javascript'}));
 
 	/**
 	 * Hermite resize - fast image resize/resample using Hermite filter. 1 cpu version!
@@ -330,14 +332,14 @@ function Hermite_class() {
 				var gx_b = 0;
 				var gx_a = 0;
 				var center_y = j * ratio_h;
-				
+
 				var xx_start = Math.floor(i * ratio_w);
 				var xx_stop = Math.ceil((i + 1) * ratio_w);
 				var yy_start = Math.floor(j * ratio_h);
 				var yy_stop = Math.ceil((j + 1) * ratio_h);
 				xx_stop = Math.min(xx_stop, width_source);
 				yy_stop = Math.min(yy_stop, height_source);
-				
+
 				for (var yy = yy_start; yy < yy_stop; yy++) {
 					var dy = Math.abs(center_y - yy) / ratio_h_half;
 					var center_x = i * ratio_w;
@@ -374,7 +376,8 @@ function Hermite_class() {
 		if (resize_canvas === true) {
 			canvas.width = width;
 			canvas.height = height;
-		} else {
+		}
+		else {
 			ctx.clearRect(0, 0, width_source, height_source);
 		}
 

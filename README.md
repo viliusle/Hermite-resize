@@ -41,3 +41,12 @@ HERMITE.resize_image('image_id', null, null, 50);
 ### Version 1.0
 Single core version - stable. Multi core version - experimental.
 - demo: http://viliusle.github.io/miniPaint/
+
+### Build instructions
+
+- git clone https://github.com/viliusle/Hermite-resize.git
+- cd [hermite-resize directory]
+- npm install
+- npm install gulp-cli -g
+- edit files...
+- grunt (build for production)

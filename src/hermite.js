@@ -138,7 +138,7 @@ function Hermite_class() {
 		for (var c = 0; c < cores; c++) {
 			//source
 			var offset_y = end_y + 1;
-			if (offset_y > height_source) {
+			if (offset_y >= height_source) {
 				//size too small, nothing left for this core
 				continue;
 			}
@@ -182,6 +182,7 @@ function Hermite_class() {
 			my_worker.onmessage = function (event) {
 				workers_in_use--;
 				var core = event.data.core;
+				workers_archive[core].terminate();
 				delete workers_archive[core];
 
 				//draw

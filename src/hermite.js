@@ -1,8 +1,6 @@
 /*
  * Hermite resize - fast image resize/resample using Hermite filter.
- * Version: 2.2.1
- * Author: ViliusL
- * demo: http://viliusle.github.io/miniPaint/
+ * https://github.com/viliusle/Hermite-resize
  */
 function Hermite_class() {
 	var cores;

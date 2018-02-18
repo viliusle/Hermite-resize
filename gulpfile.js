@@ -40,7 +40,7 @@ gulp.task('scripts-npm', ['clean'], function () {
 		.pipe(uglify())
 		.pipe(concat('hermite.npm.js'))
 		.pipe(header(banner, { pkg : pkg } ))
-		.pipe(footer("\nexport default Hermite_class;\n"))
+		.pipe(footer("\nmodule.exports = Hermite_class;\n"))
 		.pipe(gulp.dest('dist'));
 });
 

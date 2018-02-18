@@ -12,7 +12,7 @@ npm install https://github.com/viliusle/Hermite-resize.git
 
 **Usage** with NPM:
 ```
-import Hermite_class from './node_modules/hermite-resize/dist/hermite.npm.js';
+import Hermite_class from 'hermite-resize';
 var HERMITE = new Hermite_class();
 ```
 
@@ -46,7 +46,5 @@ Single core version - stable. Multi core version - experimental.
 
 - git clone https://github.com/viliusle/Hermite-resize.git
 - cd [hermite-resize directory]
-- npm install
-- npm install gulp-cli -g
 - edit files...
-- grunt (build for production)
+- npm install (build for production)

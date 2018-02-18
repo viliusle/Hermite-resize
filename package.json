@@ -22,5 +22,9 @@
     "gulp-header": "^1.8.9",
     "gulp-uglify": "^3.0.0"
   },
-  "dependencies": {}
+  "dependencies": {},
+  "scripts": {
+    "prepare": "gulp"
+  },
+  "main": "dist/hermite.npm.js"
 }

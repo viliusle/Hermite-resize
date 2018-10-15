@@ -45,6 +45,7 @@ Single core version - stable. Multi core version - experimental.
 ### Build instructions
 
 - git clone https://github.com/viliusle/Hermite-resize.git
-- cd [hermite-resize directory]
+- cd Hermite-resize
+- npm install
 - edit files...
-- npm install (build for production)
+- npm run build (build for production)

@@ -25,7 +25,7 @@ gulp.task('clean', function () {
 });
 
 // Minify scripts
-gulp.task('scripts-browser', ['clean'], function () {
+gulp.task('scripts-browser', function () {
 	return gulp.src(paths.scripts)
 		.pipe(uglify())
 		.pipe(concat('hermite.js'))
@@ -35,7 +35,7 @@ gulp.task('scripts-browser', ['clean'], function () {
 });
 
 // Minify scripts for NPM
-gulp.task('scripts-npm', ['clean'], function () {
+gulp.task('scripts-npm', function () {
 	return gulp.src(paths.scripts)
 		.pipe(uglify())
 		.pipe(concat('hermite.npm.js'))
@@ -45,4 +45,7 @@ gulp.task('scripts-npm', ['clean'], function () {
 });
 
 //list all jobs
-gulp.task('default', ['scripts-browser', 'scripts-npm']);
+gulp.task(
+	'default',
+	gulp.series('clean', gulp.parallel('scripts-browser', 'scripts-npm'))
+);

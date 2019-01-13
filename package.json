@@ -1,6 +1,6 @@
 {
   "name": "hermite-resize",
-  "version": "2.2.6",
+  "version": "2.2.7",
   "author": "Vilius L.",
   "description": "Canvas image resize/resample using Hermite filter with JavaScript.",
   "keywords": [
@@ -18,8 +18,8 @@
     "del": "^3.0.0",
     "gulp": "^4.0.0",
     "gulp-concat": "^2.6.1",
-    "gulp-footer": "^2.0.1",
-    "gulp-header": "^2.0.5",
+    "gulp-footer": "^2.0.2",
+    "gulp-header": "^2.0.7",
     "gulp-uglify": "^3.0.1"
   },
   "dependencies": {},

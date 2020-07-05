@@ -1,6 +1,6 @@
 /**
  * hermite-resize - Canvas image resize/resample using Hermite filter with JavaScript.
- * @version v2.2.8
+ * @version v2.2.10
  * @link https://github.com/viliusle/miniPaint
  * @license MIT
  */
